@@ -19,7 +19,7 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
-          <p className="text-gray-600 mt-2">Welcome to {workspace.name}</p>
+          <p className="text-gray-600 mt-2">View your website analytics below</p>
         </div>
         
         <GA4Dashboard />
