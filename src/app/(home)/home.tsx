@@ -1,13 +1,8 @@
 import { copilotApi } from 'copilot-node-sdk';
-
-import { Welcome } from '@/app/(home)/welcome';
+import { GA4Dashboard } from '@/app/components/GA4Dashboard';
 import { TokenGate } from '@/components/TokenGate';
 import { Container } from '@/components/Container';
 
-/**
- * The revalidate property determine's the cache TTL for this page and
- * all fetches that occur within it. This value is in seconds.
- */
 export const revalidate = 180;
 
 async function Content({ searchParams }: { searchParams: SearchParams }) {
@@ -16,12 +11,19 @@ async function Content({ searchParams }: { searchParams: SearchParams }) {
     apiKey: process.env.COPILOT_API_KEY ?? '',
     token: typeof token === 'string' ? token : undefined,
   });
+
   const workspace = await copilot.retrieveWorkspace();
-  const session = await copilot.getTokenPayload?.();
-  console.log({ workspace, session });
+  
   return (
     <Container>
-      <Welcome portalUrl={workspace.portalUrl} />
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
+          <p className="text-gray-600 mt-2">Welcome to {workspace.name}</p>
+        </div>
+        
+        <GA4Dashboard />
+      </div>
     </Container>
   );
 }
