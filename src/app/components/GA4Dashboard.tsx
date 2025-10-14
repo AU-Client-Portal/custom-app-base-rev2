@@ -2,119 +2,71 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-interface GA4Metrics {
-  activeUsers: number;
-  sessions: number;
-  pageViews: number;
-  avgSessionDuration: number;
-  bounceRate: string;
-  companyId?: string;
+interface GA4Data {
+  companyId: string;
+  companyName: string;
+  dateRange: { startDate: string; endDate: string };
+  metrics: {
+    activeUsers: number;
+    sessions: number;
+    pageViews: number;
+    avgSessionDuration: number;
+    bounceRate: string;
+    newUsers: number;
+    engagementRate: string;
+  };
+  timeSeries: Array<{
+    date: string;
+    activeUsers: number;
+    sessions: number;
+    pageViews: number;
+  }>;
+  topPages: Array<{
+    title: string;
+    path: string;
+    views: number;
+  }>;
+  trafficSources: Array<{
+    source: string;
+    sessions: number;
+  }>;
+  devices: Array<{
+    device: string;
+    users: number;
+  }>;
+  countries: Array<{
+    country: string;
+    users: number;
+  }>;
 }
 
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d'];
+
+const DATE_RANGES = [
+  { label: 'Last 15 Minutes', value: { start: '15minutesAgo', end: 'today' } },
+  { label: 'Last Hour', value: { start: '1hoursAgo', end: 'today' } },
+  { label: 'Today', value: { start: 'today', end: 'today' } },
+  { label: 'Yesterday', value: { start: 'yesterday', end: 'yesterday' } },
+  { label: 'Last 7 Days', value: { start: '7daysAgo', end: 'today' } },
+  { label: 'Last 30 Days', value: { start: '30daysAgo', end: 'today' } },
+  { label: 'Last 90 Days', value: { start: '90daysAgo', end: 'today' } },
+  { label: 'Last 6 Months', value: { start: '180daysAgo', end: 'today' } },
+  { label: 'Last Year', value: { start: '365daysAgo', end: 'today' } },
+];
+
 export function GA4Dashboard() {
-  const [metrics, setMetrics] = useState<GA4Metrics | null>(null);
+  const [data, setData] = useState<GA4Data | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedRange, setSelectedRange] = useState(5); // Default to Last 30 Days
   const searchParams = useSearchParams();
 
   useEffect(() => {
     async function fetchMetrics() {
-      try {
-        const token = searchParams.get('token');
-        const response = await fetch(`/api/ga4/metrics?token=${token}`);
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to fetch metrics');
-        }
-        
-        const data = await response.json();
-        setMetrics(data);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchMetrics();
-  }, [searchParams]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-gray-500">Loading analytics...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
-        <div className="text-red-600 font-semibold">Error loading analytics</div>
-        <div className="text-red-500 text-sm mt-1">{error}</div>
-      </div>
-    );
-  }
-
-  if (!metrics) {
-    return (
-      <div className="p-6 bg-gray-50 border border-gray-200 rounded-lg">
-        <div className="text-gray-600">No analytics data available</div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Google Analytics</h2>
-        <span className="text-sm text-gray-500">Last 30 Days</span>
-      </div>
+      setLoading(true);
+      setError(null);
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
-          <div className="text-gray-500 text-sm font-medium">Active Users</div>
-          <div className="text-3xl font-bold mt-2 text-blue-600">
-            {metrics.activeUsers.toLocaleString()}
-          </div>
-        </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
-          <div className="text-gray-500 text-sm font-medium">Sessions</div>
-          <div className="text-3xl font-bold mt-2 text-green-600">
-            {metrics.sessions.toLocaleString()}
-          </div>
-        </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
-          <div className="text-gray-500 text-sm font-medium">Page Views</div>
-          <div className="text-3xl font-bold mt-2 text-purple-600">
-            {metrics.pageViews.toLocaleString()}
-          </div>
-        </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
-          <div className="text-gray-500 text-sm font-medium">Avg Session Duration</div>
-          <div className="text-3xl font-bold mt-2 text-orange-600">
-            {Math.round(metrics.avgSessionDuration)}s
-          </div>
-        </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
-          <div className="text-gray-500 text-sm font-medium">Bounce Rate</div>
-          <div className="text-3xl font-bold mt-2 text-red-600">
-            {metrics.bounceRate}%
-          </div>
-        </div>
-      </div>
-
-      {metrics.companyId && (
-        <div className="text-xs text-gray-400">
-          Company ID: {metrics.companyId}
-        </div>
-      )}
-    </div>
-  );
-}
+      try {
+        con
