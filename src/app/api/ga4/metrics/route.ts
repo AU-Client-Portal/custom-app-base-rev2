@@ -6,6 +6,9 @@ import { copilotApi } from 'copilot-node-sdk';
 const PROPERTY_MAPPING: Record<string, string> = {
   // 'default': 'YOUR_GA4_PROPERTY_ID', // Replace with your actual GA4 Property ID
   'default': '270323387', // Replace with your actual GA4 Property ID In this case Art Unlimited
+  '7d52dc8e-c603-4c7e-ad27-60c15a86c12f': '270323387', // Art Unlimited
+  'fdb96a2c-a6ad-4238-9747-06b3ce7e8840': '266834246', // Alans Roofing
+  '61e7c938-fd52-4693-b79b-c2fb2349b61d': '260457321', // Straight Line
   // Add more client mappings as you add more clients:
   // 'company-123': '987654321',
   // 'client-abc': '123456789',
