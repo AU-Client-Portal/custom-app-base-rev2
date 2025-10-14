@@ -45,8 +45,6 @@ interface GA4Data {
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d'];
 
 const DATE_RANGES = [
-  { label: 'Last 15 Minutes', value: { start: '15minutesAgo', end: 'today' } },
-  { label: 'Last Hour', value: { start: '1hoursAgo', end: 'today' } },
   { label: 'Today', value: { start: 'today', end: 'today' } },
   { label: 'Yesterday', value: { start: 'yesterday', end: 'yesterday' } },
   { label: 'Last 7 Days', value: { start: '7daysAgo', end: 'today' } },
@@ -60,7 +58,7 @@ export function GA4Dashboard() {
   const [data, setData] = useState<GA4Data | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedRange, setSelectedRange] = useState(5); // Default to Last 30 Days
+  const [selectedRange, setSelectedRange] = useState(3); // Default to Last 30 Days
   const searchParams = useSearchParams();
 
   useEffect(() => {
