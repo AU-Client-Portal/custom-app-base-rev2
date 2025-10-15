@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { GoogleAdsMetrics } from './GoogleAdsMetrics';
 
 interface GA4Data {
   companyId: string;
@@ -250,6 +251,10 @@ export function GA4Dashboard() {
                 <Bar dataKey="users" fill="#8884D8" name="Users" />
               </BarChart>
             </ResponsiveContainer>
+            {/* Google Ads Section */}
+      <div className="mt-8 pt-8 border-t-4 border-gray-300">
+        <GoogleAdsMetrics dateRange={{ start: DATE_RANGES[selectedRange].value.start, end: DATE_RANGES[selectedRange].value.end }} />
+      </div>
           </div>
         )}
       </div>
