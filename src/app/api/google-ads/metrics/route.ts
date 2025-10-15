@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleAdsApi, enums } from 'google-ads-api';
+import { GoogleAdsApi } from 'google-ads-api';
 import { copilotApi } from 'copilot-node-sdk';
+
+export const dynamic = 'force-dynamic';
 
 // Map company IDs to their Google Ads Customer IDs and names
 const CUSTOMER_MAPPING: Record<string, { customerId: string; name: string }> = {
@@ -30,20 +32,17 @@ export async function GET(request: NextRequest) {
     const companyId = session?.companyId || 'default';
     const customerConfig = CUSTOMER_MAPPING[companyId] || CUSTOMER_MAPPING['default'];
 
-    // Parse service account credentials
-    const credentials = JSON.parse(process.env.GA4_SERVICE_ACCOUNT || '{}');
-
-    // Initialize Google Ads API client
+    // Initialize Google Ads API client with OAuth2
     const client = new GoogleAdsApi({
-      client_id: credentials.client_id,
-      client_secret: credentials.private_key,
+      client_id: process.env.GOOGLE_ADS_CLIENT_ID ?? '',
+      client_secret: process.env.GOOGLE_ADS_CLIENT_SECRET ?? '',
       developer_token: process.env.GOOGLE_ADS_DEVELOPER_TOKEN ?? '',
     });
 
-    // Get customer
+    // Get customer with refresh token
     const customer = client.Customer({
       customer_id: customerConfig.customerId,
-      refresh_token: credentials.private_key,
+      refresh_token: process.env.GOOGLE_ADS_REFRESH_TOKEN ?? '',
     });
 
     // Convert date range to YYYY-MM-DD format
@@ -80,6 +79,7 @@ export async function GET(request: NextRequest) {
         metrics.conversions_value
       FROM campaign
       WHERE segments.date BETWEEN '${formattedStartDate}' AND '${formattedEndDate}'
+        AND campaign.status != 'REMOVED'
       ORDER BY metrics.impressions DESC
       LIMIT 10
     `;
