@@ -22,28 +22,81 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'No token provided' }, { status: 401 });
     }
 
+    // Check environment variables
+    const requiredEnvVars = {
+      clientId: process.env.GOOGLE_ADS_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_ADS_CLIENT_SECRET,
+      developerToken: process.env.GOOGLE_ADS_DEVELOPER_TOKEN,
+      refreshToken: process.env.GOOGLE_ADS_REFRESH_TOKEN,
+      copilotApiKey: process.env.COPILOT_API_KEY,
+    };
+
+    const missingVars = Object.entries(requiredEnvVars)
+      .filter(([_, value]) => !value)
+      .map(([key]) => key);
+
+    if (missingVars.length > 0) {
+      console.error('Missing environment variables:', missingVars);
+      return NextResponse.json(
+        { error: 'Server configuration error', missing: missingVars },
+        { status: 500 }
+      );
+    }
+
     // Initialize Copilot API
+    console.log('Initializing Copilot API...');
     const copilot = copilotApi({
       apiKey: process.env.COPILOT_API_KEY ?? '',
       token: token,
     });
 
-    const session = await copilot.getTokenPayload?.();
-    const companyId = session?.companyId || 'default';
-    const customerConfig = CUSTOMER_MAPPING[companyId] || CUSTOMER_MAPPING['default'];
+    let companyId = 'default';
+    try {
+      const session = await copilot.getTokenPayload?.();
+      companyId = session?.companyId || 'default';
+      console.log('Company ID:', companyId);
+    } catch (copilotError) {
+      console.error('Copilot API error:', copilotError);
+      // Continue with default if Copilot fails
+    }
 
-    // Initialize Google Ads API client with OAuth2
-    const client = new GoogleAdsApi({
-      client_id: process.env.GOOGLE_ADS_CLIENT_ID ?? '',
-      client_secret: process.env.GOOGLE_ADS_CLIENT_SECRET ?? '',
-      developer_token: process.env.GOOGLE_ADS_DEVELOPER_TOKEN ?? '',
-    });
+    const customerConfig = CUSTOMER_MAPPING[companyId] || CUSTOMER_MAPPING['default'];
+    console.log('Using customer config:', customerConfig);
+
+    // Initialize Google Ads API client
+    console.log('Initializing Google Ads API client...');
+    let client;
+    try {
+      client = new GoogleAdsApi({
+        client_id: process.env.GOOGLE_ADS_CLIENT_ID ?? '',
+        client_secret: process.env.GOOGLE_ADS_CLIENT_SECRET ?? '',
+        developer_token: process.env.GOOGLE_ADS_DEVELOPER_TOKEN ?? '',
+      });
+      console.log('Google Ads API client initialized successfully');
+    } catch (clientError: any) {
+      console.error('Failed to initialize Google Ads API client:', clientError);
+      return NextResponse.json(
+        { error: 'Failed to initialize Google Ads client', details: clientError.message },
+        { status: 500 }
+      );
+    }
 
     // Get customer with refresh token
-    const customer = client.Customer({
-      customer_id: customerConfig.customerId,
-      refresh_token: process.env.GOOGLE_ADS_REFRESH_TOKEN ?? '',
-    });
+    console.log('Creating customer instance...');
+    let customer;
+    try {
+      customer = client.Customer({
+        customer_id: customerConfig.customerId,
+        refresh_token: process.env.GOOGLE_ADS_REFRESH_TOKEN ?? '',
+      });
+      console.log('Customer instance created for ID:', customerConfig.customerId);
+    } catch (customerError: any) {
+      console.error('Failed to create customer instance:', customerError);
+      return NextResponse.json(
+        { error: 'Failed to create customer instance', details: customerError.message },
+        { status: 500 }
+      );
+    }
 
     // Convert date range to YYYY-MM-DD format
     const formatDate = (dateStr: string): string => {
@@ -64,6 +117,7 @@ export async function GET(request: NextRequest) {
 
     const formattedStartDate = formatDate(startDate).replace(/-/g, '');
     const formattedEndDate = formatDate(endDate).replace(/-/g, '');
+    console.log('Date range:', formattedStartDate, 'to', formattedEndDate);
 
     // Query for campaign performance
     const campaignQuery = `
@@ -98,11 +152,38 @@ export async function GET(request: NextRequest) {
       WHERE segments.date BETWEEN '${formattedStartDate}' AND '${formattedEndDate}'
     `;
 
-    // Fetch data
-    const [campaigns, overallMetrics] = await Promise.all([
-      customer.query(campaignQuery),
-      customer.query(metricsQuery),
-    ]);
+    // Fetch data with detailed error handling
+    console.log('Fetching Google Ads data...');
+    let campaigns, overallMetrics;
+    
+    try {
+      [campaigns, overallMetrics] = await Promise.all([
+        customer.query(campaignQuery),
+        customer.query(metricsQuery),
+      ]);
+      console.log('Data fetched successfully');
+      console.log('Campaigns count:', campaigns?.length || 0);
+      console.log('Overall metrics:', overallMetrics?.length || 0);
+    } catch (queryError: any) {
+      console.error('Query execution failed:', queryError);
+      console.error('Error details:', {
+        message: queryError.message,
+        name: queryError.name,
+        stack: queryError.stack,
+      });
+      
+      // Return more specific error information
+      return NextResponse.json(
+        { 
+          error: 'Failed to query Google Ads data',
+          details: queryError.message,
+          errorType: queryError.name,
+          customerId: customerConfig.customerId,
+          dateRange: { formattedStartDate, formattedEndDate }
+        },
+        { status: 500 }
+      );
+    }
 
     // Parse overall metrics
     const metrics = overallMetrics[0] ? {
@@ -128,6 +209,7 @@ export async function GET(request: NextRequest) {
       conversionsValue: Number(row.metrics?.conversions_value || 0),
     }));
 
+    console.log('Successfully processed data, returning response');
     return NextResponse.json({
       companyId,
       companyName: customerConfig.name,
@@ -138,9 +220,14 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Google Ads API Error:', error);
+    console.error('Unexpected error in Google Ads API route:', error);
+    console.error('Error stack:', error.stack);
     return NextResponse.json(
-      { error: 'Failed to fetch Google Ads data', details: error.message },
+      { 
+        error: 'Failed to fetch Google Ads data',
+        details: error.message,
+        errorType: error.name || 'Unknown',
+      },
       { status: 500 }
     );
   }
