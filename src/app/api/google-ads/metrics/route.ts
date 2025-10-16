@@ -92,8 +92,7 @@ export async function GET(request: NextRequest) {
   });
   console.log('Customer instance created for ID:', customerConfig.customerId);
   console.log('Using login customer ID:', process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID ?? customerConfig.customerId);
-}
-    } catch (customerError: any) {
+} catch (customerError: any) {
       console.error('Failed to create customer instance:', customerError);
       return NextResponse.json(
         { error: 'Failed to create customer instance', details: customerError.message },
