@@ -85,11 +85,14 @@ export async function GET(request: NextRequest) {
     console.log('Creating customer instance...');
     let customer;
     try {
-      customer = client.Customer({
-        customer_id: customerConfig.customerId,
-        refresh_token: process.env.GOOGLE_ADS_REFRESH_TOKEN ?? '',
-      });
-      console.log('Customer instance created for ID:', customerConfig.customerId);
+  customer = client.Customer({
+    customer_id: customerConfig.customerId,
+    refresh_token: process.env.GOOGLE_ADS_REFRESH_TOKEN ?? '',
+    login_customer_id: process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID ?? customerConfig.customerId,
+  });
+  console.log('Customer instance created for ID:', customerConfig.customerId);
+  console.log('Using login customer ID:', process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID ?? customerConfig.customerId);
+}
     } catch (customerError: any) {
       console.error('Failed to create customer instance:', customerError);
       return NextResponse.json(
