@@ -289,7 +289,7 @@ export function GA4Dashboard() {
       {/* Top Countries */}
       {data.countries.length > 0 && (
         <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
-          <h3 className="text-xl font-bold mb-4">Top Countries</h3>
+          <h3 className="text-xl font-bold mb-4">The Top Countries</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             {data.countries.map((country, index) => (
               <div key={index} className="p-4 bg-gray-50 rounded-lg">
