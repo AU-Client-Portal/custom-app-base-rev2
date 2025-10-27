@@ -81,11 +81,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get customer instance - USE LOWERCASE .customer() method
+    // Get customer instance
     console.log('Creating customer instance...');
     let customer;
     try {
-      customer = client.customer({
+      customer = client.Customer({
         customer_id: customerConfig.customerId,
         refresh_token: process.env.GOOGLE_ADS_REFRESH_TOKEN ?? '',
         login_customer_id: process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID ?? undefined,
