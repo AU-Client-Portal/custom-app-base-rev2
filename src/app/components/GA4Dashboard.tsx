@@ -252,11 +252,10 @@ export function GA4Dashboard() {
               </BarChart>
             </ResponsiveContainer>
             {/* Google Ads Section */}
-      
-          </div>
       <div className="mt-8 pt-8 border-t-4 border-gray-300">
         <GoogleAdsMetrics dateRange={{ start: DATE_RANGES[selectedRange].value.start, end: DATE_RANGES[selectedRange].value.end }} />
       </div>
+          </div>
         )}
       </div>
 
