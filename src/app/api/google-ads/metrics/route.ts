@@ -6,9 +6,6 @@ export const dynamic = 'force-dynamic';
 
 // Map company IDs to their Google Ads Customer IDs and names
 const CUSTOMER_MAPPING: Record<string, { customerId: string; name: string }> = {
-//  'default': { customerId: '1196391424', name: 'Art Unlimited' },
-//  'default': { customerId: '9499823115', name: 'Alans Roofing' },
-//  'default': { customerId: '7968784724', name: 'Art Unlimited' },
   'default': { customerId: '7116961973', name: 'Straight Line' },
   '7d52dc8e-c603-4c7e-ad27-60c15a86c12f': { customerId: '1196391424', name: 'Art Unlimited' },
   'fdb96a2c-a6ad-4238-9747-06b3ce7e8840': { customerId: '9499823115', name: 'Alans Roofing' },
@@ -84,18 +81,18 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get customer with refresh token
+    // Get customer instance - USE LOWERCASE .customer() method
     console.log('Creating customer instance...');
     let customer;
     try {
-  customer = client.Customer({
-    customer_id: customerConfig.customerId,
-    refresh_token: process.env.GOOGLE_ADS_REFRESH_TOKEN ?? '',
-    login_customer_id: process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID ?? customerConfig.customerId,
-  });
-  console.log('Customer instance created for ID:', customerConfig.customerId);
-  console.log('Using login customer ID:', process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID ?? customerConfig.customerId);
-} catch (customerError: any) {
+      customer = client.customer({
+        customer_id: customerConfig.customerId,
+        refresh_token: process.env.GOOGLE_ADS_REFRESH_TOKEN ?? '',
+        login_customer_id: process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID ?? undefined,
+      });
+      console.log('Customer instance created for ID:', customerConfig.customerId);
+      console.log('Using login customer ID:', process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID);
+    } catch (customerError: any) {
       console.error('Failed to create customer instance:', customerError);
       return NextResponse.json(
         { error: 'Failed to create customer instance', details: customerError.message },
