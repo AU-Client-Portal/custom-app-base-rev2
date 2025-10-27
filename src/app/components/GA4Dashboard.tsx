@@ -262,7 +262,7 @@ export function GA4Dashboard() {
       {/* Top Pages Table */}
       {data.topPages.length > 0 && (
         <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
-          <h3 className="text-xl font-bold mb-4">Top Pages</h3>
+          <h3 className="text-xl font-bold mb-4">These Are The Top Pages</h3>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
