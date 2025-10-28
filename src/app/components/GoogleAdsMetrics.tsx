@@ -8,8 +8,10 @@ interface GoogleAdsData {
   companyId: string;
   companyName: string;
   customerId: string;
+  hasGoogleAds?: boolean;
+  message?: string;
   dateRange: { startDate: string; endDate: string };
-  metrics: {
+  metrics?: {
     impressions: number;
     clicks: number;
     ctr: number;
@@ -18,7 +20,7 @@ interface GoogleAdsData {
     conversionsValue: number;
     averageCpc: number;
   };
-  campaigns: Array<{
+  campaigns?: Array<{
     id: string;
     name: string;
     status: string;
@@ -31,18 +33,21 @@ interface GoogleAdsData {
   }>;
 }
 
-interface Props {
-  dateRange: { start: string; end: string };
+interface GoogleAdsMetricsProps {
+  dateRange: {
+    start: string;
+    end: string;
+  };
 }
 
-export function GoogleAdsMetrics({ dateRange }: Props) {
+export function GoogleAdsMetrics({ dateRange }: GoogleAdsMetricsProps) {
   const [data, setData] = useState<GoogleAdsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    async function fetchMetrics() {
+    async function fetchGoogleAds() {
       setLoading(true);
       setError(null);
       
@@ -54,7 +59,7 @@ export function GoogleAdsMetrics({ dateRange }: Props) {
         
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to fetch Google Ads metrics');
+          throw new Error(errorData.error || 'Failed to fetch Google Ads data');
         }
         
         const result = await response.json();
@@ -66,103 +71,124 @@ export function GoogleAdsMetrics({ dateRange }: Props) {
       }
     }
 
-    fetchMetrics();
+    fetchGoogleAds();
   }, [searchParams, dateRange]);
 
   if (loading) {
     return (
-      <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
-        <div className="text-gray-500">Loading Google Ads data...</div>
+      <div className="flex items-center justify-center p-8">
+        <div className="text-gray-500 text-lg">Loading Google Ads data...</div>
+      </div>
+    );
+  }
+
+  // Handle case where company doesn't have Google Ads
+  if (data && data.hasGoogleAds === false) {
+    return (
+      <div className="text-center py-12">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-200 mb-4">
+          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 className="text-2xl font-bold text-gray-700 mb-2">Google Ads Not Configured</h3>
+        <p className="text-gray-500 text-lg mb-6">
+          Google Ads are not set up for <span className="font-semibold">{data.companyName}</span>
+        </p>
+        <div className="inline-block px-6 py-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-blue-700 text-sm">
+            To add Google Ads tracking, please contact your account manager.
+          </p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 p-6 rounded-lg border border-red-200">
-        <div className="text-red-600 font-semibold">Error loading Google Ads</div>
-        <div className="text-red-500 text-sm mt-1">{error}</div>
+      <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
+        <div className="text-red-600 font-semibold text-lg">Error loading Google Ads</div>
+        <div className="text-red-500 text-sm mt-2">{error}</div>
       </div>
     );
   }
 
   if (!data || !data.metrics) {
     return (
-      <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+      <div className="p-6 bg-gray-50 border border-gray-200 rounded-lg">
         <div className="text-gray-600">No Google Ads data available</div>
       </div>
     );
   }
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(value);
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold">Google Ads Performance</h2>
-        <p className="text-gray-500 text-sm mt-1">Customer ID: {data.customerId}</p>
+        <h2 className="text-2xl font-bold text-gray-900">Google Ads Performance</h2>
+        <p className="text-gray-500 text-sm mt-1">
+          Customer ID: {data.customerId}
+        </p>
       </div>
 
-      {/* Main Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard
+      {/* Metrics Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <AdMetricCard
           title="Impressions"
           value={data.metrics.impressions.toLocaleString()}
           color="blue"
         />
-        <MetricCard
+        <AdMetricCard
           title="Clicks"
           value={data.metrics.clicks.toLocaleString()}
           color="green"
         />
-        <MetricCard
+        <AdMetricCard
           title="CTR"
           value={`${data.metrics.ctr.toFixed(2)}%`}
           color="purple"
         />
-        <MetricCard
+        <AdMetricCard
           title="Total Cost"
-          value={formatCurrency(data.metrics.cost)}
+          value={`$${data.metrics.cost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           color="orange"
         />
-        <MetricCard
+        <AdMetricCard
           title="Conversions"
           value={data.metrics.conversions.toFixed(1)}
           color="indigo"
         />
-        <MetricCard
+        <AdMetricCard
           title="Conversion Value"
-          value={formatCurrency(data.metrics.conversionsValue)}
+          value={`$${data.metrics.conversionsValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           color="teal"
         />
-        <MetricCard
+        <AdMetricCard
           title="Avg CPC"
-          value={formatCurrency(data.metrics.averageCpc)}
+          value={`$${data.metrics.averageCpc.toFixed(2)}`}
           color="red"
         />
-        <MetricCard
+        <AdMetricCard
           title="Cost/Conv"
-          value={data.metrics.conversions > 0 
-            ? formatCurrency(data.metrics.cost / data.metrics.conversions)
-            : '$0.00'}
+          value={data.metrics.conversions > 0 ? `$${(data.metrics.cost / data.metrics.conversions).toFixed(2)}` : '$0.00'}
           color="pink"
         />
       </div>
 
       {/* Campaign Performance Chart */}
-      {data.campaigns.length > 0 && (
+      {data.campaigns && data.campaigns.length > 0 && (
         <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
           <h3 className="text-xl font-bold mb-4">Top Campaigns by Impressions</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data.campaigns}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
+              <XAxis 
+                dataKey="name" 
+                angle={-45} 
+                textAnchor="end" 
+                height={100}
+                interval={0}
+              />
               <YAxis />
               <Tooltip />
               <Legend />
@@ -172,49 +198,11 @@ export function GoogleAdsMetrics({ dateRange }: Props) {
           </ResponsiveContainer>
         </div>
       )}
-
-      {/* Campaigns Table */}
-      {data.campaigns.length > 0 && (
-        <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
-          <h3 className="text-xl font-bold mb-4">Campaign Details</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b-2 border-gray-200">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Campaign</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700">Impressions</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700">Clicks</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700">CTR</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700">Cost</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700">Conv.</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700">Conv. Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.campaigns.map((campaign, index) => (
-                  <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4">
-                      <div className="font-medium">{campaign.name}</div>
-                      <div className="text-xs text-gray-500">{campaign.status}</div>
-                    </td>
-                    <td className="py-3 px-4 text-right">{campaign.impressions.toLocaleString()}</td>
-                    <td className="py-3 px-4 text-right">{campaign.clicks.toLocaleString()}</td>
-                    <td className="py-3 px-4 text-right">{campaign.ctr.toFixed(2)}%</td>
-                    <td className="py-3 px-4 text-right">{formatCurrency(campaign.cost)}</td>
-                    <td className="py-3 px-4 text-right">{campaign.conversions.toFixed(1)}</td>
-                    <td className="py-3 px-4 text-right">{formatCurrency(campaign.conversionsValue)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
 
-function MetricCard({ title, value, color }: { title: string; value: string; color: string }) {
+function AdMetricCard({ title, value, color }: { title: string; value: string; color: string }) {
   const colorClasses: Record<string, string> = {
     blue: 'text-blue-600',
     green: 'text-green-600',
@@ -227,9 +215,9 @@ function MetricCard({ title, value, color }: { title: string; value: string; col
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
-      <div className="text-gray-500 text-sm font-medium">{title}</div>
-      <div className={`text-3xl font-bold mt-2 ${colorClasses[color]}`}>
+    <div className="bg-white p-4 rounded-lg shadow border border-gray-200">
+      <div className="text-gray-500 text-xs font-medium">{title}</div>
+      <div className={`text-2xl font-bold mt-2 ${colorClasses[color]}`}>
         {value}
       </div>
     </div>
