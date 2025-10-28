@@ -5,11 +5,11 @@ import { copilotApi } from 'copilot-node-sdk';
 export const dynamic = 'force-dynamic';
 
 // Map company IDs to their Google Ads Customer IDs and names
-const CUSTOMER_MAPPING: Record<string, { customerId: string; name: string }> = {
-  'default': { customerId: '7116961973', name: 'Straight Line' },
-  '7d52dc8e-c603-4c7e-ad27-60c15a86c12f': { customerId: '1196391424', name: 'Art Unlimited' },
-  'fdb96a2c-a6ad-4238-9747-06b3ce7e8840': { customerId: '9499823115', name: 'Alans Roofing' },
-  '61e7c938-fd52-4693-b79b-c2fb2349b61d': { customerId: '7116961973', name: 'Straight Line' },
+const CUSTOMER_MAPPING: Record<string, { customerId: string; name: string; hasGoogleAds: boolean }> = {
+  'default': { customerId: '7116961973', name: 'Straight Line', hasGoogleAds: true },
+  '7d52dc8e-c603-4c7e-ad27-60c15a86c12f': { customerId: '1196391424', name: 'Art Unlimited', hasGoogleAds: false },
+  'fdb96a2c-a6ad-4238-9747-06b3ce7e8840': { customerId: '9499823115', name: 'Alans Roofing', hasGoogleAds: true },
+  '61e7c938-fd52-4693-b79b-c2fb2349b61d': { customerId: '7116961973', name: 'Straight Line', hasGoogleAds: true },
 };
 
 export async function GET(request: NextRequest) {
