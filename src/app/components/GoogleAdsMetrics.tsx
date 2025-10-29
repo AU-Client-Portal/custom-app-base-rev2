@@ -179,7 +179,7 @@ export function GoogleAdsMetrics({ dateRange }: GoogleAdsMetricsProps) {
       {data.campaigns && data.campaigns.length > 0 && (
         <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
           <h3 className="text-xl font-bold mb-4">Top Campaigns by Impressions</h3>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={400}>
             <BarChart data={data.campaigns}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
