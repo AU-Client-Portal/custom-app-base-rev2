@@ -194,7 +194,7 @@ export function GoogleAdsMetrics({ dateRange }: GoogleAdsMetricsProps) {
               <Tooltip />
               <Legend 
                 verticalAlign="bottom" 
-                wrapperStyle={{ paddingTop: '20px' }}
+                wrapperStyle={{ paddingTop: '20px', bottom: '50px' }}
               />
               <Bar dataKey="impressions" fill="#0088FE" name="Impressions" />
               <Bar dataKey="clicks" fill="#00C49F" name="Clicks" />
