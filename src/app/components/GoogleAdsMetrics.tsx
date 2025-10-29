@@ -180,7 +180,7 @@ export function GoogleAdsMetrics({ dateRange }: GoogleAdsMetricsProps) {
         <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
           <h3 className="text-xl font-bold mb-4">Top Campaigns by Impressions</h3>
           <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={data.campaigns}>
+            <BarChart data={data.campaigns} margin={{ bottom: 80 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
                 dataKey="name" 
@@ -192,7 +192,10 @@ export function GoogleAdsMetrics({ dateRange }: GoogleAdsMetricsProps) {
               />
               <YAxis />
               <Tooltip />
-              <Legend />
+              <Legend 
+                verticalAlign="bottom" 
+                wrapperStyle={{ paddingTop: '20px' }}
+              />
               <Bar dataKey="impressions" fill="#0088FE" name="Impressions" />
               <Bar dataKey="clicks" fill="#00C49F" name="Clicks" />
             </BarChart>
