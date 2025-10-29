@@ -187,8 +187,7 @@ export function GoogleAdsMetrics({ dateRange }: GoogleAdsMetricsProps) {
                 angle={-45} 
                 textAnchor="end" 
                 height={120}
-                interval={0}
-                tick={{ fontSize: 12 }}
+                interval={0}}
               />
               <YAxis />
               <Tooltip />
