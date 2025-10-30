@@ -222,7 +222,7 @@ export function GA4Dashboard() {
                   data={data.trafficSources}
                   dataKey="sessions"
                   nameKey="source"
-                  cx="35%"
+                  cx="40%"
                   cy="50%"
                   outerRadius={110}
                   label={({ percent, sessions }) => {
@@ -233,6 +233,7 @@ export function GA4Dashboard() {
                     return '';
                   }}
                   labelLine={false}
+                  style={{ fill: 'white', fontWeight: 'bold', fontSize: '16px' }}
                 >
                   {data.trafficSources.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
