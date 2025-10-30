@@ -225,15 +225,30 @@ export function GA4Dashboard() {
                   cx="40%"
                   cy="50%"
                   outerRadius={110}
-                  label={({ percent, sessions }) => {
+                  label={({ cx, cy, midAngle, innerRadius, outerRadius, percent, sessions }) => {
                     // Only show label if slice is bigger than 8%
-                    if (percent > 0.08) {
-                      return sessions;
+                    if (percent <= 0.08) {
+                      return null;
                     }
-                    return '';
+                    const RADIAN = Math.PI / 180;
+                    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+                    return (
+                      <text 
+                        x={x} 
+                        y={y} 
+                        fill="white" 
+                        textAnchor="middle" 
+                        dominantBaseline="central"
+                        style={{ fontWeight: 'bold', fontSize: '16px' }}
+                      >
+                        {sessions}
+                      </text>
+                    );
                   }}
                   labelLine={false}
-                  style={{ fill: 'white', fontWeight: 'bold', fontSize: '16px' }}
                 >
                   {data.trafficSources.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
