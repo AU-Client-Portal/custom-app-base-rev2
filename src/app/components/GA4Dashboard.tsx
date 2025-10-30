@@ -223,10 +223,10 @@ export function GA4Dashboard() {
                   dataKey="sessions"
                   nameKey="source"
                   cx="50%"
-                  cy="40%"
-                  outerRadius={80}
-                  label={(entry) => `${entry.sessions}`}
-                  labelLine={{ stroke: '#999', strokeWidth: 1 }}
+                  cy="50%"
+                  outerRadius={100}
+                  label
+                  labelLine
                 >
                   {data.trafficSources.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -235,8 +235,8 @@ export function GA4Dashboard() {
                 <Tooltip />
                 <Legend 
                   verticalAlign="bottom" 
-                  height={60}
-                  wrapperStyle={{ paddingTop: '20px' }}
+                  height={50}
+                  wrapperStyle={{ paddingTop: '10px' }}
                 />
               </PieChart>
             </ResponsiveContainer>
