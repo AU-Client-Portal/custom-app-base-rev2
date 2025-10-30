@@ -8,6 +8,7 @@ const PROPERTY_MAPPING: Record<string, { propertyId: string; name: string; adsCu
   '7d52dc8e-c603-4c7e-ad27-60c15a86c12f': { propertyId: '270323387', name: 'Art Unlimited', adsCustomerId: '1196391424' },
   'fdb96a2c-a6ad-4238-9747-06b3ce7e8840': { propertyId: '266834246', name: 'Alans Roofing', adsCustomerId: '9499823115' },
   '61e7c938-fd52-4693-b79b-c2fb2349b61d': { propertyId: '260457321', name: 'Straight Line', adsCustomerId: '7116961973' },
+  'de381a8e-db60-447f-9114-418d874f087b': { propertyId: '270368443', name: 'Bill West Roofing', adsCustomerId: '8289173629' },
 };
 
 export async function GET(request: NextRequest) {
