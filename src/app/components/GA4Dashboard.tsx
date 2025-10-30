@@ -43,7 +43,7 @@ interface GA4Data {
   }>;
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d'];
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d', '#ffc658', '#ff6b9d', '#c084fc', '#22d3ee', '#fb923c', '#a78bfa'];
 
 const DATE_RANGES = [
   { label: 'Today', value: { start: 'today', end: 'today' } },
@@ -216,46 +216,23 @@ export function GA4Dashboard() {
         {data.trafficSources.length > 0 && (
           <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
             <h3 className="text-xl font-bold mb-4">Traffic Sources</h3>
-            <ResponsiveContainer width="100%" height={400}>
+            <ResponsiveContainer width="100%" height={350}>
               <PieChart>
                 <Pie
                   data={data.trafficSources}
                   dataKey="sessions"
                   nameKey="source"
-                  cx="50%"
+                  cx="35%"
                   cy="50%"
-                  outerRadius={100}
-                  label={({
-                    cx,
-                    cy,
-                    midAngle,
-                    outerRadius,
-                    sessions,
-                    index
-                  }) => {
-                    const RADIAN = Math.PI / 180;
-                    // Increase radius for labels - make them further out
-                    const radius = outerRadius + 35;
-                    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                    
-                    return (
-                      <text
-                        x={x}
-                        y={y}
-                        fill={COLORS[index % COLORS.length]}
-                        textAnchor={x > cx ? 'start' : 'end'}
-                        dominantBaseline="central"
-                        style={{ fontWeight: 'bold', fontSize: '14px' }}
-                      >
-                        {sessions}
-                      </text>
-                    );
+                  outerRadius={110}
+                  label={({ percent, sessions }) => {
+                    // Only show label if slice is bigger than 8%
+                    if (percent > 0.08) {
+                      return sessions;
+                    }
+                    return '';
                   }}
-                  labelLine={{
-                    stroke: '#999',
-                    strokeWidth: 1
-                  }}
+                  labelLine={false}
                 >
                   {data.trafficSources.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -263,9 +240,13 @@ export function GA4Dashboard() {
                 </Pie>
                 <Tooltip />
                 <Legend 
-                  verticalAlign="bottom" 
-                  height={50}
-                  wrapperStyle={{ paddingTop: '10px' }}
+                  layout="vertical"
+                  verticalAlign="middle"
+                  align="right"
+                  formatter={(value, entry: any) => {
+                    return `${value}: ${entry.payload.sessions}`;
+                  }}
+                  wrapperStyle={{ paddingLeft: '20px' }}
                 />
               </PieChart>
             </ResponsiveContainer>
