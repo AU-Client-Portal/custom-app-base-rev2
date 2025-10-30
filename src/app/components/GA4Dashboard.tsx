@@ -216,16 +216,17 @@ export function GA4Dashboard() {
         {data.trafficSources.length > 0 && (
           <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
             <h3 className="text-xl font-bold mb-4">Traffic Sources</h3>
-            <ResponsiveContainer width="100%" height={350}>
+            <ResponsiveContainer width="100%" height={400}>
               <PieChart>
                 <Pie
                   data={data.trafficSources}
                   dataKey="sessions"
                   nameKey="source"
                   cx="50%"
-                  cy="45%"
-                  outerRadius={90}
-                  label={false}
+                  cy="40%"
+                  outerRadius={80}
+                  label={(entry) => `${entry.sessions}`}
+                  labelLine={{ stroke: '#999', strokeWidth: 1 }}
                 >
                   {data.trafficSources.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
