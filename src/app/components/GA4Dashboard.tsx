@@ -225,8 +225,37 @@ export function GA4Dashboard() {
                   cx="50%"
                   cy="50%"
                   outerRadius={100}
-                  label
-                  labelLine
+                  label={({
+                    cx,
+                    cy,
+                    midAngle,
+                    outerRadius,
+                    sessions,
+                    index
+                  }) => {
+                    const RADIAN = Math.PI / 180;
+                    // Increase radius for labels - make them further out
+                    const radius = outerRadius + 35;
+                    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                    
+                    return (
+                      <text
+                        x={x}
+                        y={y}
+                        fill={COLORS[index % COLORS.length]}
+                        textAnchor={x > cx ? 'start' : 'end'}
+                        dominantBaseline="central"
+                        style={{ fontWeight: 'bold', fontSize: '14px' }}
+                      >
+                        {sessions}
+                      </text>
+                    );
+                  }}
+                  labelLine={{
+                    stroke: '#999',
+                    strokeWidth: 1
+                  }}
                 >
                   {data.trafficSources.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
