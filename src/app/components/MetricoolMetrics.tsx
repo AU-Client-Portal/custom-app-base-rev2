@@ -126,7 +126,7 @@ export function MetricoolMetrics({ dateRange }: MetricoolMetricsProps) {
           {JSON.stringify(data, null, 2)}
         </pre>
         <p className="text-xs text-gray-500 mt-2">
-          This preview helps us see the actual data structure. We'll remove this and add proper visualizations once we know what data Metricool returns.
+          This preview helps us see the actual data structure. We&apos;ll remove this and add proper visualizations once we know what data Metricool returns.
         </p>
       </div>
 
