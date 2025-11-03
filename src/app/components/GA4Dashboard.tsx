@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { GoogleAdsMetrics } from './GoogleAdsMetrics';
+import { MetricoolMetrics } from './MetricoolMetrics';
 
 interface GA4Data {
   companyId: string;
@@ -289,6 +290,11 @@ export function GA4Dashboard() {
       {/* Google Ads Section - Full Width */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-8 rounded-lg shadow-lg border-2 border-blue-200">
         <GoogleAdsMetrics dateRange={{ start: DATE_RANGES[selectedRange].value.start, end: DATE_RANGES[selectedRange].value.end }} />
+      </div>
+
+      {/* Metricool Social Media Section - Full Width */}
+      <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-8 rounded-lg shadow-lg border-2 border-purple-200">
+        <MetricoolMetrics dateRange={{ start: DATE_RANGES[selectedRange].value.start, end: DATE_RANGES[selectedRange].value.end }} />
       </div>
 
       {/* Top Pages Table */}
